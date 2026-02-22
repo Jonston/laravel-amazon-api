@@ -40,10 +40,10 @@ final readonly class AmazonCredentials
         bool $sandbox = false,
     ): self {
         return new self(
-            clientId:      $clientId,
-            clientSecret:  $clientSecret,
-            refreshToken:  $refreshToken,
-            baseUrl:       $sandbox ? $region->sandboxUrl() : $region->baseUrl(),
+            clientId: $clientId,
+            clientSecret: $clientSecret,
+            refreshToken: $refreshToken,
+            baseUrl: $sandbox ? $region->sandboxUrl() : $region->baseUrl(),
         );
     }
 
@@ -56,10 +56,10 @@ final readonly class AmazonCredentials
     {
         if (isset($config['base_url'])) {
             return new self(
-                clientId:      $config['client_id'],
-                clientSecret:  $config['client_secret'],
-                refreshToken:  $config['refresh_token'],
-                baseUrl:       $config['base_url'],
+                clientId: $config['client_id'],
+                clientSecret: $config['client_secret'],
+                refreshToken: $config['refresh_token'],
+                baseUrl: $config['base_url'],
                 tokenEndpoint: $config['token_endpoint'] ?? self::TOKEN_ENDPOINT,
             );
         }
@@ -67,11 +67,11 @@ final readonly class AmazonCredentials
         $region = RegionEnum::from(strtoupper($config['region'] ?? 'NA'));
 
         return self::fromRegion(
-            region:       $region,
-            clientId:     $config['client_id'],
+            region: $region,
+            clientId: $config['client_id'],
             clientSecret: $config['client_secret'],
             refreshToken: $config['refresh_token'],
-            sandbox:      $sandbox,
+            sandbox: $sandbox,
         );
     }
 }

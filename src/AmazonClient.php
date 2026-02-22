@@ -24,8 +24,7 @@ final class AmazonClient
 
     public function __construct(
         private readonly AmazonCredentials $credentials,
-    ) {
-    }
+    ) {}
 
     /**
      * Вернуть новый экземпляр клиента с дополнительными заголовками.
@@ -73,9 +72,9 @@ final class AmazonClient
     private function buildHeaders(): array
     {
         return array_merge([
-            'Authorization'                   => 'Bearer ' . $this->resolveAccessToken(),
+            'Authorization' => 'Bearer ' . $this->resolveAccessToken(),
             'Amazon-Advertising-API-ClientId' => $this->credentials->clientId,
-            'Content-Type'                    => 'application/json',
+            'Content-Type' => 'application/json',
         ], $this->extraHeaders);
     }
 

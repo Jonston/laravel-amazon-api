@@ -11,8 +11,8 @@ class AmazonCredentialsTest extends TestCase
     public function test_from_region_builds_correct_base_url(): void
     {
         $cred = AmazonCredentials::fromRegion(
-            region:       RegionEnum::EU,
-            clientId:     'id',
+            region: RegionEnum::EU,
+            clientId: 'id',
             clientSecret: 'secret',
             refreshToken: 'token',
         );
@@ -24,11 +24,11 @@ class AmazonCredentialsTest extends TestCase
     public function test_from_region_sandbox_uses_sandbox_url(): void
     {
         $cred = AmazonCredentials::fromRegion(
-            region:       RegionEnum::NA,
-            clientId:     'id',
+            region: RegionEnum::NA,
+            clientId: 'id',
             clientSecret: 'secret',
             refreshToken: 'token',
-            sandbox:      true,
+            sandbox: true,
         );
 
         $this->assertSame('https://advertising-api-test.amazon.com', $cred->baseUrl);
@@ -37,10 +37,10 @@ class AmazonCredentialsTest extends TestCase
     public function test_from_array_with_region(): void
     {
         $cred = AmazonCredentials::fromArray([
-            'client_id'     => 'id',
+            'client_id' => 'id',
             'client_secret' => 'secret',
             'refresh_token' => 'token',
-            'region'        => 'fe',
+            'region' => 'fe',
         ]);
 
         $this->assertSame('https://advertising-api-fe.amazon.com', $cred->baseUrl);
@@ -50,10 +50,10 @@ class AmazonCredentialsTest extends TestCase
     public function test_from_array_with_explicit_base_url(): void
     {
         $cred = AmazonCredentials::fromArray([
-            'client_id'     => 'id',
+            'client_id' => 'id',
             'client_secret' => 'secret',
             'refresh_token' => 'token',
-            'base_url'      => 'https://my-custom-endpoint.example.com',
+            'base_url' => 'https://my-custom-endpoint.example.com',
         ]);
 
         $this->assertSame('https://my-custom-endpoint.example.com', $cred->baseUrl);
@@ -62,10 +62,10 @@ class AmazonCredentialsTest extends TestCase
     public function test_from_array_with_custom_token_endpoint(): void
     {
         $cred = AmazonCredentials::fromArray([
-            'client_id'      => 'id',
-            'client_secret'  => 'secret',
-            'refresh_token'  => 'token',
-            'base_url'       => 'https://some.endpoint.com',
+            'client_id' => 'id',
+            'client_secret' => 'secret',
+            'refresh_token' => 'token',
+            'base_url' => 'https://some.endpoint.com',
             'token_endpoint' => 'https://custom.oauth.com/token',
         ]);
 
@@ -75,10 +75,10 @@ class AmazonCredentialsTest extends TestCase
     public function test_direct_constructor_with_all_params(): void
     {
         $cred = new AmazonCredentials(
-            clientId:      'my-client',
-            clientSecret:  'my-secret',
-            refreshToken:  'my-token',
-            baseUrl:       'https://advertising-api.amazon.com',
+            clientId: 'my-client',
+            clientSecret: 'my-secret',
+            refreshToken: 'my-token',
+            baseUrl: 'https://advertising-api.amazon.com',
             tokenEndpoint: 'https://api.amazon.com/auth/o2/token',
         );
 
@@ -88,7 +88,7 @@ class AmazonCredentialsTest extends TestCase
 
     public function test_region_enum_all_base_urls(): void
     {
-        $this->assertSame('https://advertising-api.amazon.com',    RegionEnum::NA->baseUrl());
+        $this->assertSame('https://advertising-api.amazon.com', RegionEnum::NA->baseUrl());
         $this->assertSame('https://advertising-api-eu.amazon.com', RegionEnum::EU->baseUrl());
         $this->assertSame('https://advertising-api-fe.amazon.com', RegionEnum::FE->baseUrl());
     }
@@ -102,4 +102,3 @@ class AmazonCredentialsTest extends TestCase
         $this->assertSame($expected, RegionEnum::FE->sandboxUrl());
     }
 }
-

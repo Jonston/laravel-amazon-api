@@ -23,10 +23,10 @@ final class OAuthClient
     public function exchangeCode(string $code, string $redirectUri): array
     {
         return $this->post([
-            'grant_type'    => 'authorization_code',
-            'code'          => $code,
-            'redirect_uri'  => $redirectUri,
-            'client_id'     => $this->credentials->clientId,
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'redirect_uri' => $redirectUri,
+            'client_id' => $this->credentials->clientId,
             'client_secret' => $this->credentials->clientSecret,
         ]);
     }
@@ -37,8 +37,8 @@ final class OAuthClient
     public function refreshAccessToken(): string
     {
         $data = $this->post([
-            'grant_type'    => 'refresh_token',
-            'client_id'     => $this->credentials->clientId,
+            'grant_type' => 'refresh_token',
+            'client_id' => $this->credentials->clientId,
             'client_secret' => $this->credentials->clientSecret,
             'refresh_token' => $this->credentials->refreshToken,
         ]);

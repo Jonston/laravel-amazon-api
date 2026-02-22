@@ -15,8 +15,8 @@ class AmazonAdsTest extends TestCase
     private function makeCredentials(RegionEnum $region = RegionEnum::NA): AmazonCredentials
     {
         return AmazonCredentials::fromRegion(
-            region:       $region,
-            clientId:     'client-id',
+            region: $region,
+            clientId: 'client-id',
             clientSecret: 'client-secret',
             refreshToken: 'refresh-token',
         );
@@ -95,4 +95,3 @@ class AmazonAdsTest extends TestCase
         $this->assertNotSame($resourceA, $resourceB);
     }
 }
-
