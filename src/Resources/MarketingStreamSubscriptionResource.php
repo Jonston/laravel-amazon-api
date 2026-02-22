@@ -4,20 +4,23 @@ namespace Jonston\AmazonAdsApi\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
 use Jonston\AmazonAdsApi\AmazonClient;
-use Jonston\AmazonAdsApi\Contracts\AmazonResourceContract;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
-class MarketingStreamResource implements AmazonResourceContract
+/**
+ * Marketing Stream Subscriptions API.
+ *
+ * Каждый экземпляр ресурса привязан к конкретному profileId (Amazon Advertising Scope).
+ * Использует иммутабельный клон AmazonClient — оригинальный клиент не мутируется.
+ */
+class MarketingStreamSubscriptionResource
 {
-    protected string $path = '/streams/subscriptions';
+    private const PATH = '/streams/subscriptions';
 
-    private readonly AmazonClient $scopedClient;
+    private readonly AmazonClient $client;
 
     public function __construct(AmazonClient $client, string $profileId)
     {
-        // Создаём иммутабельный клон клиента с заголовком scope —
-        // оригинальный клиент не мутируется
-        $this->scopedClient = $client->withHeaders([
+        $this->client = $client->withHeaders([
             'Amazon-Advertising-API-Scope' => $profileId,
         ]);
     }
@@ -28,9 +31,7 @@ class MarketingStreamResource implements AmazonResourceContract
      */
     public function list(array $params = []): array
     {
-        return $this->scopedClient->request('GET', $this->path, [
-            'query' => $params,
-        ]);
+        return $this->client->request('GET', self::PATH, ['query' => $params]);
     }
 
     /**
@@ -39,7 +40,7 @@ class MarketingStreamResource implements AmazonResourceContract
      */
     public function get(string $id): array
     {
-        return $this->scopedClient->request('GET', "{$this->path}/{$id}");
+        return $this->client->request('GET', self::PATH . "/{$id}");
     }
 
     /**
@@ -48,9 +49,7 @@ class MarketingStreamResource implements AmazonResourceContract
      */
     public function create(array $data): array
     {
-        return $this->scopedClient->request('POST', $this->path, [
-            'json' => $data,
-        ]);
+        return $this->client->request('POST', self::PATH, ['json' => $data]);
     }
 
     /**
@@ -59,9 +58,7 @@ class MarketingStreamResource implements AmazonResourceContract
      */
     public function update(string $id, array $data): array
     {
-        return $this->scopedClient->request('PUT', "{$this->path}/{$id}", [
-            'json' => $data,
-        ]);
+        return $this->client->request('PUT', self::PATH . "/{$id}", ['json' => $data]);
     }
 
     /**
@@ -70,6 +67,6 @@ class MarketingStreamResource implements AmazonResourceContract
      */
     public function delete(string $id): array
     {
-        return $this->scopedClient->request('DELETE', "{$this->path}/{$id}");
+        return $this->client->request('DELETE', self::PATH . "/{$id}");
     }
 }

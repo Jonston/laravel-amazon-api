@@ -2,22 +2,20 @@
 
 namespace Jonston\AmazonAdsApi\Enums;
 
+/**
+ * Регион Amazon Ads API.
+ *
+ * Используется как удобный хелпер для получения base URL.
+ * Если нужен нестандартный endpoint — передайте его напрямую в AmazonCredentials.
+ */
 enum RegionEnum: string
 {
     case NA = 'NA';
     case EU = 'EU';
     case FE = 'FE';
 
-    public function getBaseUrl(bool $sandbox = false): string
+    public function baseUrl(): string
     {
-        if ($sandbox) {
-            return match ($this) {
-                self::NA => 'https://advertising-api-test.amazon.com',
-                self::EU => 'https://advertising-api-test.amazon.com',
-                self::FE => 'https://advertising-api-test.amazon.com',
-            };
-        }
-
         return match ($this) {
             self::NA => 'https://advertising-api.amazon.com',
             self::EU => 'https://advertising-api-eu.amazon.com',
@@ -25,8 +23,8 @@ enum RegionEnum: string
         };
     }
 
-    public function getTokenEndpoint(): string
+    public function sandboxUrl(): string
     {
-        return 'https://api.amazon.com/auth/o2/token';
+        return 'https://advertising-api-test.amazon.com';
     }
 }

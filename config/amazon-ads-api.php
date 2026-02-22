@@ -5,36 +5,30 @@ return [
     |--------------------------------------------------------------------------
     | Sandbox Mode
     |--------------------------------------------------------------------------
-    | Если true — все запросы идут на https://advertising-api-test.amazon.com
+    | Если true — base URL для RegionEnum::*->sandboxUrl() будет использован
+    | автоматически при AmazonCredentials::fromRegion(..., sandbox: true).
+    |
+    | Прямая передача base_url в AmazonCredentials игнорирует этот флаг.
     */
     'sandbox' => env('AMAZON_SANDBOX', false),
 
     /*
     |--------------------------------------------------------------------------
-    | Рекламные аккаунты
+    | Default Credentials (опционально)
     |--------------------------------------------------------------------------
-    | Агентство может управлять несколькими рекламными аккаунтами Amazon.
-    | Каждый аккаунт задаётся под уникальным ключом.
+    | Если вы работаете только с одним аккаунтом, можно задать credentials здесь.
+    | Для multi-tenant сценариев (агентство → N аккаунтов) создавайте
+    | AmazonCredentials динамически и передавайте через ->authorize():
     |
-    | Регионы: NA (North America), EU (Europe), FE (Far East)
-    |
-    | Пример динамической регистрации аккаунта из БД:
-    |   app(AmazonManager::class)->addAccount('client-x', new AmazonCredentials(...))
+    |   $amazon->authorize(AmazonCredentials::fromRegion(RegionEnum::NA, ...))
+    |   $amazon->authorize(AmazonCredentials::fromArray($accountFromDatabase))
     */
-    'accounts' => [
-        'default' => [
-            'client_id' => env('AMAZON_CLIENT_ID'),
-            'client_secret' => env('AMAZON_CLIENT_SECRET'),
-            'refresh_token' => env('AMAZON_REFRESH_TOKEN'),
-            'region' => env('AMAZON_REGION', 'NA'),
-        ],
-
-        // Пример второго аккаунта:
-        // 'agency-client-eu' => [
-        //     'client_id'     => env('AMAZON_EU_CLIENT_ID'),
-        //     'client_secret' => env('AMAZON_EU_CLIENT_SECRET'),
-        //     'refresh_token' => env('AMAZON_EU_REFRESH_TOKEN'),
-        //     'region'        => 'EU',
-        // ],
+    'default' => [
+        'client_id'     => env('AMAZON_CLIENT_ID'),
+        'client_secret' => env('AMAZON_CLIENT_SECRET'),
+        'refresh_token' => env('AMAZON_REFRESH_TOKEN'),
+        'region'        => env('AMAZON_REGION', 'NA'),
+        // 'base_url'   => env('AMAZON_BASE_URL'), // переопределить endpoint напрямую
     ],
+
 ];

@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Http;
 use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
+/**
+ * Отвечает исключительно за OAuth 2.0 токены Amazon.
+ */
 final class OAuthClient
 {
     public function __construct(
@@ -15,11 +18,11 @@ final class OAuthClient
     }
 
     /**
-     * Обменять authorization code на access/refresh tokens.
+     * Обменять authorization code на access/refresh tokens (Authorization Code Flow).
      */
     public function exchangeCode(string $code, string $redirectUri): array
     {
-        return $this->request([
+        return $this->post([
             'grant_type'    => 'authorization_code',
             'code'          => $code,
             'redirect_uri'  => $redirectUri,
@@ -31,9 +34,9 @@ final class OAuthClient
     /**
      * Получить свежий access_token через refresh_token.
      */
-    public function getAccessToken(): string
+    public function refreshAccessToken(): string
     {
-        $data = $this->request([
+        $data = $this->post([
             'grant_type'    => 'refresh_token',
             'client_id'     => $this->credentials->clientId,
             'client_secret' => $this->credentials->clientSecret,
@@ -43,12 +46,12 @@ final class OAuthClient
         return $data['access_token'];
     }
 
-    private function request(array $params): array
+    // ---
+
+    private function post(array $params): array
     {
         try {
-            $endpoint = $this->credentials->region->getTokenEndpoint();
-
-            $response = Http::asForm()->post($endpoint, $params);
+            $response = Http::asForm()->post($this->credentials->tokenEndpoint, $params);
 
             if ($response->failed()) {
                 throw AmazonApiException::oauthFailed($response->body());

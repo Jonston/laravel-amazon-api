@@ -3,7 +3,6 @@
 namespace Jonston\AmazonAdsApi;
 
 use Illuminate\Support\ServiceProvider;
-use Jonston\AmazonAdsApi\Contracts\AmazonManagerContract;
 
 class AmazonAdsServiceProvider extends ServiceProvider
 {
@@ -14,12 +13,9 @@ class AmazonAdsServiceProvider extends ServiceProvider
             'amazon-ads-api'
         );
 
-        $this->app->singleton(AmazonManager::class, function ($app) {
-            return new AmazonManager(config('amazon-ads-api'));
-        });
-
-        // Привязываем контракт к реализации
-        $this->app->alias(AmazonManager::class, AmazonManagerContract::class);
+        // AmazonAds — stateful синглтон на время одного запроса.
+        // Переключение аккаунта происходит через ->authorize($credentials).
+        $this->app->singleton(AmazonAds::class);
     }
 
     public function boot(): void

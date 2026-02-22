@@ -2,45 +2,74 @@
 
 namespace Jonston\AmazonAdsApi;
 
-use Jonston\AmazonAdsApi\Resources\MarketingStreamResource;
+use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
+use Jonston\AmazonAdsApi\Resources\MarketingStreamSubscriptionResource;
 use Jonston\AmazonAdsApi\Resources\ProfileResource;
 
 /**
- * Точка входа для работы с одним рекламным аккаунтом Amazon.
+ * Точка входа в Amazon Ads API.
  *
- * Используется через AmazonManager:
- *   amazon_ads()->account('my-account')->profiles()->list()
+ * Регистрируется как синглтон в Laravel. Переключение между аккаунтами
+ * агентства происходит через ->authorize() без создания нового объекта:
+ *
+ *   $amazon->authorize($credentialsA)->profiles()->list();
+ *   $amazon->authorize($credentialsB)->marketingStreamSubscriptions($profileId)->create([...]);
+ *
+ * Для работы без Laravel — просто создайте экземпляр напрямую:
+ *   $amazon = new AmazonAds();
+ *   $amazon->authorize(AmazonCredentials::fromRegion(RegionEnum::NA, ...));
  */
 class AmazonAds
 {
-    public function __construct(
-        private readonly AmazonClient $client,
-    ) {
+    private ?AmazonClient $client = null;
+
+    /**
+     * Установить credentials для текущего запроса.
+     * Возвращает $this для fluent-цепочки.
+     */
+    public function authorize(AmazonCredentials $credentials): static
+    {
+        $this->client = new AmazonClient($credentials);
+
+        return $this;
     }
 
     /**
-     * Работа с профилями рекламного аккаунта.
+     * Ресурс профилей рекламного аккаунта.
      */
     public function profiles(): ProfileResource
     {
-        return new ProfileResource($this->client);
+        return new ProfileResource($this->resolveClient());
     }
 
     /**
-     * Работа с Marketing Stream подписками.
+     * Ресурс Marketing Stream подписок для конкретного профиля.
      *
      * @param string $profileId Amazon Advertising API Scope (profileId)
      */
-    public function marketingStream(string $profileId): MarketingStreamResource
+    public function marketingStreamSubscriptions(string $profileId): MarketingStreamSubscriptionResource
     {
-        return new MarketingStreamResource($this->client, $profileId);
+        return new MarketingStreamSubscriptionResource($this->resolveClient(), $profileId);
     }
 
     /**
-     * Прямой доступ к клиенту (для нестандартных запросов).
+     * Прямой доступ к HTTP-клиенту для нестандартных запросов.
      */
     public function client(): AmazonClient
     {
+        return $this->resolveClient();
+    }
+
+    // ---
+
+    private function resolveClient(): AmazonClient
+    {
+        if ($this->client === null) {
+            throw new \LogicException(
+                'No credentials set. Call ->authorize(AmazonCredentials $credentials) first.'
+            );
+        }
+
         return $this->client;
     }
 }

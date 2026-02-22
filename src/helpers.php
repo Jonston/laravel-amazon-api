@@ -1,18 +1,16 @@
 <?php
 
 use Jonston\AmazonAdsApi\AmazonAds;
-use Jonston\AmazonAdsApi\AmazonManager;
 
 if (!function_exists('amazon_ads')) {
     /**
-     * Получить экземпляр AmazonAds для указанного аккаунта.
+     * Получить синглтон AmazonAds из контейнера.
      *
-     * @param  string $account  Имя аккаунта из конфига amazon-ads-api.accounts
-     * @return AmazonAds
+     * Использование:
+     *   amazon_ads()->authorize($credentials)->profiles()->list();
      */
-    function amazon_ads(string $account = 'default'): AmazonAds
+    function amazon_ads(): AmazonAds
     {
-        return app(AmazonManager::class)->account($account);
+        return app(AmazonAds::class);
     }
 }
-

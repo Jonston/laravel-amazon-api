@@ -4,11 +4,12 @@ namespace Jonston\AmazonAdsApi\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
 use Jonston\AmazonAdsApi\AmazonClient;
-use Jonston\AmazonAdsApi\Contracts\AmazonResourceContract;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
-class ProfileResource implements AmazonResourceContract
+class ProfileResource
 {
+    private const PATH = '/v2/profiles';
+
     public function __construct(private readonly AmazonClient $client)
     {
     }
@@ -21,7 +22,7 @@ class ProfileResource implements AmazonResourceContract
      */
     public function list(): array
     {
-        return $this->client->request('GET', '/v2/profiles');
+        return $this->client->request('GET', self::PATH);
     }
 
     /**
@@ -32,6 +33,6 @@ class ProfileResource implements AmazonResourceContract
      */
     public function get(string $profileId): array
     {
-        return $this->client->request('GET', "/v2/profiles/{$profileId}");
+        return $this->client->request('GET', self::PATH . "/{$profileId}");
     }
 }

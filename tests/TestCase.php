@@ -15,7 +15,7 @@ abstract class TestCase extends BaseTestCase
     protected function defineEnvironment($app): void
     {
         $app['config']->set('amazon-ads-api.sandbox', true);
-        $app['config']->set('amazon-ads-api.accounts.default', [
+        $app['config']->set('amazon-ads-api.default', [
             'client_id'     => 'test-client-id',
             'client_secret' => 'test-client-secret',
             'refresh_token' => 'test-refresh-token',
