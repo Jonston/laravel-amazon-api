@@ -4,6 +4,8 @@ namespace Jonston\AmazonAdsApi\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
 use Jonston\AmazonAdsApi\AmazonClient;
+use Jonston\AmazonAdsApi\DTO\CreateSubscriptionData;
+use Jonston\AmazonAdsApi\DTO\UpdateSubscriptionData;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
 /**
@@ -58,28 +60,28 @@ class MarketingStreamSubscriptionResource
     /**
      * Create a new subscription.
      *
-     * @param array $data
+     * @param CreateSubscriptionData $data
      * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */
-    public function create(array $data): array
+    public function create(CreateSubscriptionData $data): array
     {
-        return $this->client->request('POST', self::PATH, ['json' => $data]);
+        return $this->client->request('POST', self::PATH, ['json' => $data->toArray()]);
     }
 
     /**
      * Update an existing subscription.
      *
-     * @param string $id
-     * @param array  $data
+     * @param string                 $id
+     * @param UpdateSubscriptionData $data
      * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */
-    public function update(string $id, array $data): array
+    public function update(string $id, UpdateSubscriptionData $data): array
     {
-        return $this->client->request('PUT', self::PATH . "/{$id}", ['json' => $data]);
+        return $this->client->request('PUT', self::PATH . "/{$id}", ['json' => $data->toArray()]);
     }
 
     /**

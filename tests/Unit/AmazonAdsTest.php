@@ -4,6 +4,7 @@ namespace Jonston\AmazonAdsApi\Tests\Unit;
 
 use Jonston\AmazonAdsApi\AmazonAds;
 use Jonston\AmazonAdsApi\AmazonClient;
+use Jonston\AmazonAdsApi\DTO\AdvertisingProfile;
 use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
 use Jonston\AmazonAdsApi\Enums\RegionEnum;
 use Jonston\AmazonAdsApi\Resources\MarketingStreamSubscriptionResource;
@@ -20,6 +21,11 @@ class AmazonAdsTest extends TestCase
             clientSecret: 'client-secret',
             refreshToken: 'refresh-token',
         );
+    }
+
+    private function makeProfile(string $profileId, RegionEnum $region = RegionEnum::NA): AdvertisingProfile
+    {
+        return new AdvertisingProfile($profileId, $region);
     }
 
     public function test_authorize_returns_same_instance(): void
@@ -43,7 +49,7 @@ class AmazonAdsTest extends TestCase
     {
         $this->expectException(\LogicException::class);
 
-        (new AmazonAds())->marketingStreamSubscriptions('profile-123');
+        (new AmazonAds())->marketingStreamSubscriptions($this->makeProfile('profile-123'));
     }
 
     public function test_profiles_returns_profile_resource(): void
@@ -59,7 +65,7 @@ class AmazonAdsTest extends TestCase
 
         $this->assertInstanceOf(
             MarketingStreamSubscriptionResource::class,
-            $amazon->marketingStreamSubscriptions('profile-123')
+            $amazon->marketingStreamSubscriptions($this->makeProfile('profile-123'))
         );
     }
 
@@ -74,7 +80,7 @@ class AmazonAdsTest extends TestCase
     {
         $amazon = app(AmazonAds::class);
 
-        $credA = $this->makeCredentials();
+        $credA = $this->makeCredentials(RegionEnum::NA);
         $credB = $this->makeCredentials(RegionEnum::EU);
 
         $amazon->authorize($credA);
@@ -84,14 +90,28 @@ class AmazonAdsTest extends TestCase
         $this->assertStringContainsString('advertising-api-eu.amazon.com', $credB->baseUrl);
     }
 
+    public function test_marketing_stream_uses_profile_region_endpoint(): void
+    {
+        // Agency credentials are NA, but we work with an EU profile
+        $amazon = app(AmazonAds::class)->authorize($this->makeCredentials(RegionEnum::NA));
+
+        $euProfile = $this->makeProfile('profile-eu', RegionEnum::EU);
+        $naProfile = $this->makeProfile('profile-na', RegionEnum::NA);
+
+        // Each resource uses its profile's region — no cross-region leakage
+        $this->assertInstanceOf(MarketingStreamSubscriptionResource::class,
+            $amazon->marketingStreamSubscriptions($euProfile));
+        $this->assertInstanceOf(MarketingStreamSubscriptionResource::class,
+            $amazon->marketingStreamSubscriptions($naProfile));
+    }
+
     public function test_multiple_marketing_stream_resources_do_not_share_state(): void
     {
         $amazon = app(AmazonAds::class)->authorize($this->makeCredentials());
 
-        $resourceA = $amazon->marketingStreamSubscriptions('profile-aaa');
-        $resourceB = $amazon->marketingStreamSubscriptions('profile-bbb');
+        $resourceA = $amazon->marketingStreamSubscriptions($this->makeProfile('profile-aaa'));
+        $resourceB = $amazon->marketingStreamSubscriptions($this->makeProfile('profile-bbb'));
 
-        // Разные объекты — каждый ресурс получил клон клиента со своим scope
         $this->assertNotSame($resourceA, $resourceB);
     }
 }

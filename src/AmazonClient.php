@@ -37,6 +37,30 @@ final class AmazonClient
     }
 
     /**
+     * Return a new instance targeting a different base URL.
+     *
+     * Used when a profile belongs to a different region than the agency credentials.
+     *
+     * @param string $baseUrl
+     * @return self
+     */
+    public function withBaseUrl(string $baseUrl): self
+    {
+        $newCredentials = new AmazonCredentials(
+            clientId: $this->credentials->clientId,
+            clientSecret: $this->credentials->clientSecret,
+            refreshToken: $this->credentials->refreshToken,
+            baseUrl: $baseUrl,
+            tokenEndpoint: $this->credentials->tokenEndpoint,
+        );
+
+        $clone = new self($newCredentials);
+        $clone->extraHeaders = $this->extraHeaders;
+
+        return $clone;
+    }
+
+    /**
      * Send an HTTP request to the Amazon Ads API.
      *
      * @param string $method HTTP method (GET, POST, PUT, DELETE)

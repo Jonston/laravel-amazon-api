@@ -19,7 +19,7 @@ final readonly class OAuthClient
     /**
      * Exchange an authorization code for access and refresh tokens.
      *
-     * @param string $code        Authorization code from Amazon callback
+     * @param string $code Authorization code from Amazon callback
      * @param string $redirectUri Redirect URI registered with the application
      * @return array{access_token: string, refresh_token: string}
      * @throws AmazonApiException

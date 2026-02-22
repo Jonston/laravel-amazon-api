@@ -2,6 +2,7 @@
 
 namespace Jonston\AmazonAdsApi;
 
+use Jonston\AmazonAdsApi\DTO\AdvertisingProfile;
 use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
 use Jonston\AmazonAdsApi\Resources\MarketingStreamSubscriptionResource;
 use Jonston\AmazonAdsApi\Resources\ProfileResource;
@@ -13,8 +14,9 @@ use Jonston\AmazonAdsApi\Resources\ProfileResource;
  * Switch between accounts by calling authorize() with different credentials.
  *
  * @example
- *   $amazon->authorize($credentialsA)->profiles()->list();
- *   $amazon->authorize($credentialsB)->marketingStreamSubscriptions($profileId)->create([...]);
+ *   $amazon->authorize($agencyCredentials)->profiles()->list();
+ *   $amazon->authorize($agencyCredentials)->marketingStreamSubscriptions($profileEU)->create($data);
+ *   $amazon->authorize($agencyCredentials)->marketingStreamSubscriptions($profileNA)->create($data);
  */
 class AmazonAds
 {
@@ -44,14 +46,19 @@ class AmazonAds
     }
 
     /**
-     * Return the Marketing Stream subscriptions resource for a given profile.
+     * Return the Marketing Stream subscriptions resource scoped to the given profile.
      *
-     * @param string $profileId Amazon Advertising API Scope identifier
+     * The client endpoint is automatically switched to match the profile's region,
+     * so EU and NA profiles can be used within the same agency session.
+     *
+     * @param AdvertisingProfile $profile
      * @return MarketingStreamSubscriptionResource
      */
-    public function marketingStreamSubscriptions(string $profileId): MarketingStreamSubscriptionResource
+    public function marketingStreamSubscriptions(AdvertisingProfile $profile): MarketingStreamSubscriptionResource
     {
-        return new MarketingStreamSubscriptionResource($this->resolveClient(), $profileId);
+        $client = $this->resolveClient()->withBaseUrl($profile->region->baseUrl());
+
+        return new MarketingStreamSubscriptionResource($client, $profile->profileId);
     }
 
     /**

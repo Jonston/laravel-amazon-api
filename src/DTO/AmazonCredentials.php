@@ -18,7 +18,7 @@ final readonly class AmazonCredentials
      * @param string $clientId  Amazon Advertising API client ID
      * @param string $clientSecret  OAuth client secret
      * @param string $refreshToken  Long-lived refresh token
-     * @param string $baseUrl       Amazon Ads API base URL
+     * @param string $baseUrl Amazon Ads API base URL
      * @param string $tokenEndpoint OAuth token endpoint (overridable for testing)
      */
     public function __construct(
@@ -33,10 +33,10 @@ final readonly class AmazonCredentials
      * Create credentials using a RegionEnum to resolve the base URL.
      *
      * @param RegionEnum $region
-     * @param string     $clientId
-     * @param string     $clientSecret
-     * @param string     $refreshToken
-     * @param bool       $sandbox Use the sandbox endpoint when true
+     * @param string  $clientId
+     * @param string $clientSecret
+     * @param string $refreshToken
+     * @param bool $sandbox Use the sandbox endpoint when true
      * @return self
      */
     public static function fromRegion(
@@ -61,7 +61,7 @@ final readonly class AmazonCredentials
      * or a 'base_url' key for a custom endpoint.
      *
      * @param array $config
-     * @param bool  $sandbox
+     * @param bool $sandbox
      * @return self
      */
     public static function fromArray(array $config, bool $sandbox = false): self

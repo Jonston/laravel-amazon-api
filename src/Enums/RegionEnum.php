@@ -15,6 +15,21 @@ enum RegionEnum: string
     case FE = 'FE';
 
     /**
+     * Resolve a region from an Amazon country code (e.g. 'US', 'GB', 'JP').
+     *
+     * @param string $countryCode ISO 3166-1 alpha-2 country code
+     * @return self
+     */
+    public static function fromCountryCode(string $countryCode): self
+    {
+        return match (strtoupper($countryCode)) {
+            'US', 'CA', 'MX', 'BR' => self::NA,
+            'JP', 'AU', 'SG'       => self::FE,
+            default                => self::EU,
+        };
+    }
+
+    /**
      * Return the production base URL for this region.
      *
      * @return string
