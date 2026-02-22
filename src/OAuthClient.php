@@ -8,17 +8,21 @@ use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
 /**
- * Отвечает исключительно за OAuth 2.0 токены Amazon.
+ * Handles Amazon OAuth 2.0 token operations.
  */
-final class OAuthClient
+final readonly class OAuthClient
 {
     public function __construct(
-        private readonly AmazonCredentials $credentials,
-    ) {
-    }
+        private AmazonCredentials $credentials,
+    ) {}
 
     /**
-     * Обменять authorization code на access/refresh tokens (Authorization Code Flow).
+     * Exchange an authorization code for access and refresh tokens.
+     *
+     * @param string $code        Authorization code from Amazon callback
+     * @param string $redirectUri Redirect URI registered with the application
+     * @return array{access_token: string, refresh_token: string}
+     * @throws AmazonApiException
      */
     public function exchangeCode(string $code, string $redirectUri): array
     {
@@ -32,7 +36,10 @@ final class OAuthClient
     }
 
     /**
-     * Получить свежий access_token через refresh_token.
+     * Obtain a fresh access token using the stored refresh token.
+     *
+     * @return string
+     * @throws AmazonApiException
      */
     public function refreshAccessToken(): string
     {
@@ -46,8 +53,9 @@ final class OAuthClient
         return $data['access_token'];
     }
 
-    // ---
-
+    /**
+     * @throws AmazonApiException
+     */
     private function post(array $params): array
     {
         try {

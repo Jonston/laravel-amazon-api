@@ -9,14 +9,10 @@ use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
 /**
- * HTTP-транспорт для Amazon Ads API.
+ * HTTP transport layer for the Amazon Ads API.
  *
- * Отвечает за:
- * - получение и кэширование access_token
- * - формирование заголовков
- * - выполнение HTTP-запросов
- *
- * Иммутабелен: withHeaders() возвращает новый экземпляр.
+ * Handles access token resolution, request headers and HTTP execution.
+ * Immutable: withHeaders() returns a new instance without modifying the original.
  */
 final class AmazonClient
 {
@@ -27,8 +23,10 @@ final class AmazonClient
     ) {}
 
     /**
-     * Вернуть новый экземпляр клиента с дополнительными заголовками.
-     * Оригинальный клиент не изменяется.
+     * Return a new instance with additional headers merged in.
+     *
+     * @param array<string, string> $headers
+     * @return self
      */
     public function withHeaders(array $headers): self
     {
@@ -39,8 +37,12 @@ final class AmazonClient
     }
 
     /**
-     * Выполнить HTTP-запрос к Amazon Ads API.
+     * Send an HTTP request to the Amazon Ads API.
      *
+     * @param string $method HTTP method (GET, POST, PUT, DELETE)
+     * @param string $path   API path (e.g. /v2/profiles)
+     * @param array  $options Guzzle-compatible options (query, json, etc.)
+     * @return array
      * @throws ConnectionException
      * @throws AmazonApiException
      */
@@ -60,14 +62,14 @@ final class AmazonClient
     }
 
     /**
-     * Получить OAuthClient для этих credentials (например, для exchangeCode).
+     * Return an OAuthClient bound to the current credentials.
+     *
+     * @return OAuthClient
      */
     public function oauth(): OAuthClient
     {
         return new OAuthClient($this->credentials);
     }
-
-    // ---
 
     private function buildHeaders(): array
     {
@@ -82,6 +84,10 @@ final class AmazonClient
     {
         $key = 'amazon_ads_token_' . md5($this->credentials->clientId . $this->credentials->refreshToken);
 
-        return Cache::remember($key, now()->addMinutes(55), fn () => (new OAuthClient($this->credentials))->refreshAccessToken());
+        return Cache::remember(
+            $key,
+            now()->addMinutes(55),
+            fn () => (new OAuthClient($this->credentials))->refreshAccessToken()
+        );
     }
 }

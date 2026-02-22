@@ -7,10 +7,10 @@ use Jonston\AmazonAdsApi\AmazonClient;
 use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
 /**
- * Marketing Stream Subscriptions API.
+ * Provides access to the Amazon Marketing Stream Subscriptions API (/streams/subscriptions).
  *
- * Каждый экземпляр ресурса привязан к конкретному profileId (Amazon Advertising Scope).
- * Использует иммутабельный клон AmazonClient — оригинальный клиент не мутируется.
+ * Each instance is scoped to a single profileId via the Amazon-Advertising-API-Scope header.
+ * The underlying client is cloned on construction — the original is never mutated.
  */
 class MarketingStreamSubscriptionResource
 {
@@ -18,6 +18,10 @@ class MarketingStreamSubscriptionResource
 
     private readonly AmazonClient $client;
 
+    /**
+     * @param AmazonClient $client
+     * @param string       $profileId Amazon Advertising API Scope identifier
+     */
     public function __construct(AmazonClient $client, string $profileId)
     {
         $this->client = $client->withHeaders([
@@ -26,6 +30,10 @@ class MarketingStreamSubscriptionResource
     }
 
     /**
+     * Return a list of subscriptions, optionally filtered by query parameters.
+     *
+     * @param array $params
+     * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */
@@ -35,6 +43,10 @@ class MarketingStreamSubscriptionResource
     }
 
     /**
+     * Return a single subscription by ID.
+     *
+     * @param string $id
+     * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */
@@ -44,6 +56,10 @@ class MarketingStreamSubscriptionResource
     }
 
     /**
+     * Create a new subscription.
+     *
+     * @param array $data
+     * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */
@@ -53,6 +69,11 @@ class MarketingStreamSubscriptionResource
     }
 
     /**
+     * Update an existing subscription.
+     *
+     * @param string $id
+     * @param array  $data
+     * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */
@@ -62,6 +83,10 @@ class MarketingStreamSubscriptionResource
     }
 
     /**
+     * Delete a subscription by ID.
+     *
+     * @param string $id
+     * @return array
      * @throws AmazonApiException
      * @throws ConnectionException
      */

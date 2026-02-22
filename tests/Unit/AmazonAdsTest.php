@@ -74,7 +74,7 @@ class AmazonAdsTest extends TestCase
     {
         $amazon = app(AmazonAds::class);
 
-        $credA = $this->makeCredentials(RegionEnum::NA);
+        $credA = $this->makeCredentials();
         $credB = $this->makeCredentials(RegionEnum::EU);
 
         $amazon->authorize($credA);

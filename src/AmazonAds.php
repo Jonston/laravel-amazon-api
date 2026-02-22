@@ -7,25 +7,24 @@ use Jonston\AmazonAdsApi\Resources\MarketingStreamSubscriptionResource;
 use Jonston\AmazonAdsApi\Resources\ProfileResource;
 
 /**
- * Точка входа в Amazon Ads API.
+ * Entry point for the Amazon Ads API.
  *
- * Регистрируется как синглтон в Laravel. Переключение между аккаунтами
- * агентства происходит через ->authorize() без создания нового объекта:
+ * Registered as a singleton in the Laravel container.
+ * Switch between accounts by calling authorize() with different credentials.
  *
+ * @example
  *   $amazon->authorize($credentialsA)->profiles()->list();
  *   $amazon->authorize($credentialsB)->marketingStreamSubscriptions($profileId)->create([...]);
- *
- * Для работы без Laravel — просто создайте экземпляр напрямую:
- *   $amazon = new AmazonAds();
- *   $amazon->authorize(AmazonCredentials::fromRegion(RegionEnum::NA, ...));
  */
 class AmazonAds
 {
     private ?AmazonClient $client = null;
 
     /**
-     * Установить credentials для текущего запроса.
-     * Возвращает $this для fluent-цепочки.
+     * Set credentials for the current request context.
+     *
+     * @param AmazonCredentials $credentials
+     * @return static
      */
     public function authorize(AmazonCredentials $credentials): static
     {
@@ -35,7 +34,9 @@ class AmazonAds
     }
 
     /**
-     * Ресурс профилей рекламного аккаунта.
+     * Return the profiles resource.
+     *
+     * @return ProfileResource
      */
     public function profiles(): ProfileResource
     {
@@ -43,9 +44,10 @@ class AmazonAds
     }
 
     /**
-     * Ресурс Marketing Stream подписок для конкретного профиля.
+     * Return the Marketing Stream subscriptions resource for a given profile.
      *
-     * @param string $profileId Amazon Advertising API Scope (profileId)
+     * @param string $profileId Amazon Advertising API Scope identifier
+     * @return MarketingStreamSubscriptionResource
      */
     public function marketingStreamSubscriptions(string $profileId): MarketingStreamSubscriptionResource
     {
@@ -53,14 +55,14 @@ class AmazonAds
     }
 
     /**
-     * Прямой доступ к HTTP-клиенту для нестандартных запросов.
+     * Return the underlying HTTP client for custom requests.
+     *
+     * @return AmazonClient
      */
     public function client(): AmazonClient
     {
         return $this->resolveClient();
     }
-
-    // ---
 
     private function resolveClient(): AmazonClient
     {

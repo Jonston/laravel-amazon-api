@@ -13,8 +13,6 @@ class AmazonAdsServiceProvider extends ServiceProvider
             'amazon-ads-api'
         );
 
-        // AmazonAds — stateful синглтон на время одного запроса.
-        // Переключение аккаунта происходит через ->authorize($credentials).
         $this->app->singleton(AmazonAds::class);
     }
 

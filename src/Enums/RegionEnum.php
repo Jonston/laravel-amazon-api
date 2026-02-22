@@ -3,10 +3,10 @@
 namespace Jonston\AmazonAdsApi\Enums;
 
 /**
- * Регион Amazon Ads API.
+ * Amazon Ads API region.
  *
- * Используется как удобный хелпер для получения base URL.
- * Если нужен нестандартный endpoint — передайте его напрямую в AmazonCredentials.
+ * Helper for resolving the correct base URL per region.
+ * For custom endpoints pass the URL directly to AmazonCredentials.
  */
 enum RegionEnum: string
 {
@@ -14,6 +14,11 @@ enum RegionEnum: string
     case EU = 'EU';
     case FE = 'FE';
 
+    /**
+     * Return the production base URL for this region.
+     *
+     * @return string
+     */
     public function baseUrl(): string
     {
         return match ($this) {
@@ -23,6 +28,11 @@ enum RegionEnum: string
         };
     }
 
+    /**
+     * Return the sandbox base URL (shared across all regions).
+     *
+     * @return string
+     */
     public function sandboxUrl(): string
     {
         return 'https://advertising-api-test.amazon.com';
