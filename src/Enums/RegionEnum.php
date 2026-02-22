@@ -8,12 +8,25 @@ enum RegionEnum: string
     case EU = 'EU';
     case FE = 'FE';
 
-    public function getBaseUrl(): string
+    public function getBaseUrl(bool $sandbox = false): string
     {
+        if ($sandbox) {
+            return match ($this) {
+                self::NA => 'https://advertising-api-test.amazon.com',
+                self::EU => 'https://advertising-api-test.amazon.com',
+                self::FE => 'https://advertising-api-test.amazon.com',
+            };
+        }
+
         return match ($this) {
-            self::NA => 'advertising-api.amazon.com',
-            self::EU => 'advertising-api-eu.amazon.com',
-            self::FE => 'advertising-api-fe.amazon.com',
+            self::NA => 'https://advertising-api.amazon.com',
+            self::EU => 'https://advertising-api-eu.amazon.com',
+            self::FE => 'https://advertising-api-fe.amazon.com',
         };
+    }
+
+    public function getTokenEndpoint(): string
+    {
+        return 'https://api.amazon.com/auth/o2/token';
     }
 }

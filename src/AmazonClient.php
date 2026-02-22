@@ -3,72 +3,98 @@
 namespace Jonston\AmazonAdsApi;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Jonston\AmazonAdsApi\Enums\RegionEnum;
+use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
+use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
 class AmazonClient
 {
-    protected string $baseUrl;
-    protected string $clientId;
-    protected string $accessToken;
-    protected array $headers = [];
+    private readonly OAuthClient $oauthClient;
 
     public function __construct(
-        string $clientId,
-        string $accessToken,
-        string $baseUrl,
+        private readonly AmazonCredentials $credentials,
+        private readonly bool $sandbox = false,
     ) {
-        $this->authorize($clientId, $accessToken)
-            ->setBaseUrl($baseUrl);
-    }
-
-    public function authorize(string $clientId, string $accessToken): self
-    {
-        $this->clientId = $clientId;
-        $this->accessToken = $accessToken;
-
-        return $this;
-    }
-
-    public function setBaseUrl(string $baseUrl): self
-    {
-        $this->baseUrl = $baseUrl;
-
-        return $this;
+        $this->oauthClient = new OAuthClient($credentials);
     }
 
     /**
-     * Выполнение запроса через Laravel Http Facade
+     * Получить access_token (с кэшированием на 55 минут).
+     */
+    public function getAccessToken(): string
+    {
+        $cacheKey = 'amazon_ads_token_' . md5($this->credentials->clientId . $this->credentials->refreshToken);
+
+        return Cache::remember($cacheKey, now()->addMinutes(55), function () {
+            return $this->oauthClient->getAccessToken();
+        });
+    }
+
+    /**
+     * Создать новый экземпляр клиента с дополнительными заголовками (иммутабельно).
+     */
+    public function withHeaders(array $headers): static
+    {
+        $clone = clone $this;
+        $clone->extraHeaders = array_merge($this->extraHeaders, $headers);
+
+        return $clone;
+    }
+
+    /**
+     * Выполнить HTTP-запрос к Amazon Ads API.
+     *
      * @throws ConnectionException
-     * @throws RequestException
+     * @throws AmazonApiException
      */
     public function request(string $method, string $path, array $options = []): array
     {
-        $url = rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
+        $baseUrl = $this->credentials->region->getBaseUrl($this->sandbox);
+        $url     = rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
 
-        $response = Http::withHeaders($this->getHeaders())
-            ->send($method, $url, $options);
+        try {
+            $response = Http::withHeaders($this->buildHeaders())
+                ->send($method, $url, $options);
 
-        $response->throw();
+            if ($response->failed()) {
+                throw AmazonApiException::requestFailed(
+                    "HTTP {$response->status()}: {$response->body()}"
+                );
+            }
 
-        return $response->json() ?? [];
+            return $response->json() ?? [];
+        } catch (ConnectionException $e) {
+            throw $e;
+        }
     }
 
-    public function withHeaders(array $headers): self
+    /**
+     * Вернуть OAuthClient для данного аккаунта (например, для обмена кода).
+     */
+    public function oauth(): OAuthClient
     {
-        $this->headers = $headers;
-
-        return $this;
+        return $this->oauthClient;
     }
 
-    protected function getHeaders(): array
+    public function getCredentials(): AmazonCredentials
     {
-        $headers = [
-            'Authorization' => "Bearer {$this->accessToken}",
-            'Amazon-Advertising-API-ClientId' => $this->clientId,
-        ];
+        return $this->credentials;
+    }
 
-        return array_merge($headers, $this->headers);
+    // ---
+
+    private array $extraHeaders = [];
+
+    private function buildHeaders(): array
+    {
+        return array_merge(
+            [
+                'Authorization'                        => 'Bearer ' . $this->getAccessToken(),
+                'Amazon-Advertising-API-ClientId'      => $this->credentials->clientId,
+                'Content-Type'                         => 'application/json',
+            ],
+            $this->extraHeaders,
+        );
     }
 }

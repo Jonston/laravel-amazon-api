@@ -3,21 +3,35 @@
 namespace Jonston\AmazonAdsApi\Resources;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Jonston\AmazonAdsApi\AmazonClient;
+use Jonston\AmazonAdsApi\Contracts\AmazonResourceContract;
+use Jonston\AmazonAdsApi\Exceptions\AmazonApiException;
 
-class ProfileResource
+class ProfileResource implements AmazonResourceContract
 {
-    public function __construct(protected AmazonClient $client) {}
+    public function __construct(private readonly AmazonClient $client)
+    {
+    }
 
     /**
-     * Get a list of all profiles that the authorized user has access to.
+     * Получить список всех профилей, доступных авторизованному пользователю.
      *
-     * @throws RequestException
+     * @throws AmazonApiException
      * @throws ConnectionException
      */
     public function list(): array
     {
         return $this->client->request('GET', '/v2/profiles');
+    }
+
+    /**
+     * Получить профиль по ID.
+     *
+     * @throws AmazonApiException
+     * @throws ConnectionException
+     */
+    public function get(string $profileId): array
+    {
+        return $this->client->request('GET', "/v2/profiles/{$profileId}");
     }
 }

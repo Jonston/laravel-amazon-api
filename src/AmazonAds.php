@@ -2,40 +2,45 @@
 
 namespace Jonston\AmazonAdsApi;
 
-use Jonston\AmazonAdsApi\Resources\ProfileResource;
 use Jonston\AmazonAdsApi\Resources\MarketingStreamResource;
+use Jonston\AmazonAdsApi\Resources\ProfileResource;
 
+/**
+ * Точка входа для работы с одним рекламным аккаунтом Amazon.
+ *
+ * Используется через AmazonManager:
+ *   amazon_ads()->account('my-account')->profiles()->list()
+ */
 class AmazonAds
 {
-    protected string $clientId;
-    protected string $accessToken;
-
-    public function __construct(string $clientId, string $accessToken)
-    {
-        $this->authorize($clientId, $accessToken);
+    public function __construct(
+        private readonly AmazonClient $client,
+    ) {
     }
 
-    public function authorize(string $clientId, string $accessToken)
-    {
-        $this->clientId = $clientId;
-        $this->accessToken = $accessToken;
-
-        $client = app(AmazonClient::class);
-
-        return $client->authorize($this->clientId, $this->accessToken);
-    }
-
+    /**
+     * Работа с профилями рекламного аккаунта.
+     */
     public function profiles(): ProfileResource
     {
-        $client = app(AmazonClient::class);
-
-        return new ProfileResource($client);
+        return new ProfileResource($this->client);
     }
 
+    /**
+     * Работа с Marketing Stream подписками.
+     *
+     * @param string $profileId Amazon Advertising API Scope (profileId)
+     */
     public function marketingStream(string $profileId): MarketingStreamResource
     {
-        $client = app(AmazonClient::class);
+        return new MarketingStreamResource($this->client, $profileId);
+    }
 
-        return new MarketingStreamResource($client, $profileId);
+    /**
+     * Прямой доступ к клиенту (для нестандартных запросов).
+     */
+    public function client(): AmazonClient
+    {
+        return $this->client;
     }
 }

@@ -1,12 +1,13 @@
 {
     "name": "jonston/amazon-ads-api",
-    "description": "Laravel package for Amazon Advertising API",
+    "description": "Laravel package for Amazon Advertising API — multi-account support",
     "type": "library",
     "license": "MIT",
     "require": {
         "php": "^8.2",
         "illuminate/support": "^10.0|^11.0",
-        "illuminate/http": "^10.0|^11.0"
+        "illuminate/http": "^10.0|^11.0",
+        "illuminate/cache": "^10.0|^11.0"
     },
     "require-dev": {
         "orchestra/testbench": "^8.0|^9.0",
@@ -15,7 +16,10 @@
     "autoload": {
         "psr-4": {
             "Jonston\\AmazonAdsApi\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -25,7 +29,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Jonston\\AmazonAdsApi\\AmazonApiServiceProvider"
+                "Jonston\\AmazonAdsApi\\AmazonAdsServiceProvider"
             ]
         }
     },
