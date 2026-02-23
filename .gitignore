@@ -1,0 +1,53 @@
+# Laravel & Composer
+/vendor/
+/node_modules/
+/.env
+/.env.*
+.phpunit.result.cache
+/storage/*.key
+/storage/*.log
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+composer.phar
+npm-debug.log
+yarn-error.log
+
+# OS
+*.DS_Store
+Thumbs.db
+
+# PHPUnit
+.phpunit.result.cache
+
+# Ignore test output
+/test-output/
+
+# Ignore coverage reports
+/coverage/
+
+# Ignore build artifacts
+/build/
+/dist/
+
+# Ignore misc
+*.tgz
+*.zip
+*.tar.gz
+*.7z
+*.rar
+*.bak
+*.tmp
+*.log
+
