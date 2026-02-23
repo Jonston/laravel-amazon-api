@@ -1,84 +1,33 @@
 <?php
 
-namespace Jonston\AmazonAdsApi;
+declare(strict_types=1);
 
-use Jonston\AmazonAdsApi\DTO\AdvertisingProfile;
-use Jonston\AmazonAdsApi\DTO\AmazonCredentials;
-use Jonston\AmazonAdsApi\Resources\MarketingStreamSubscriptionResource;
-use Jonston\AmazonAdsApi\Resources\ProfileResource;
+namespace Jonston\AmazonAds;
+
+use Jonston\AmazonAds\Auth\Credentials;
+use Jonston\AmazonAds\Http\HttpClient;
 
 /**
- * Entry point for the Amazon Ads API.
+ * Stateless entry point. Safe to use as a singleton in Swoole.
+ * All state lives in Credentials and per-request AuthorizedClient instances.
  *
- * Registered as a singleton in the Laravel container.
- * Switch between accounts by calling authorize() with different credentials.
- *
- * @example
- *   $amazon->authorize($agencyCredentials)->profiles()->list();
- *   $amazon->authorize($agencyCredentials)->marketingStreamSubscriptions($profileEU)->create($data);
- *   $amazon->authorize($agencyCredentials)->marketingStreamSubscriptions($profileNA)->create($data);
+ * Usage:
+ *   $amazon->authorize($credentials)->profiles()->list();
+ *   $amazon->authorize($credentials)->marketingStreamSubscriptions($profileId)->create($data);
  */
-class AmazonAds
+final readonly class AmazonAds
 {
-    private ?AmazonClient $client = null;
+    public function __construct(
+        private HttpClient $httpClient,
+    ) {}
 
     /**
-     * Set credentials for the current request context.
-     *
-     * @param AmazonCredentials $credentials
-     * @return static
+     * Returns an immutable context bound to the given credentials.
+     * You can call this multiple times with different credentials in the same request
+     * without any state leaking between them.
      */
-    public function authorize(AmazonCredentials $credentials): static
+    public function authorize(Credentials $credentials): AuthorizedClient
     {
-        $this->client = new AmazonClient($credentials);
-
-        return $this;
-    }
-
-    /**
-     * Return the profiles resource.
-     *
-     * @return ProfileResource
-     */
-    public function profiles(): ProfileResource
-    {
-        return new ProfileResource($this->resolveClient());
-    }
-
-    /**
-     * Return the Marketing Stream subscriptions resource scoped to the given profile.
-     *
-     * The client endpoint is automatically switched to match the profile's region,
-     * so EU and NA profiles can be used within the same agency session.
-     *
-     * @param AdvertisingProfile $profile
-     * @return MarketingStreamSubscriptionResource
-     */
-    public function marketingStreamSubscriptions(AdvertisingProfile $profile): MarketingStreamSubscriptionResource
-    {
-        $client = $this->resolveClient()->withBaseUrl($profile->region->baseUrl());
-
-        return new MarketingStreamSubscriptionResource($client, $profile->profileId);
-    }
-
-    /**
-     * Return the underlying HTTP client for custom requests.
-     *
-     * @return AmazonClient
-     */
-    public function client(): AmazonClient
-    {
-        return $this->resolveClient();
-    }
-
-    private function resolveClient(): AmazonClient
-    {
-        if ($this->client === null) {
-            throw new \LogicException(
-                'No credentials set. Call ->authorize(AmazonCredentials $credentials) first.'
-            );
-        }
-
-        return $this->client;
+        return new AuthorizedClient($this->httpClient, $credentials);
     }
 }

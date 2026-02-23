@@ -1,13 +1,12 @@
 {
-    "name": "jonston/amazon-ads-api",
-    "description": "Laravel package for Amazon Advertising API — multi-account support",
+    "name": "jonston/amazon-ads",
+    "description": "Amazon Ads API low-level Laravel package",
     "type": "library",
-    "license": "MIT",
     "require": {
         "php": "^8.2",
         "illuminate/support": "^10.0|^11.0",
-        "illuminate/http": "^10.0|^11.0",
-        "illuminate/cache": "^10.0|^11.0"
+        "illuminate/contracts": "^10.0|^11.0",
+        "illuminate/http": "^10.0|^11.0"
     },
     "require-dev": {
         "orchestra/testbench": "^8.0|^9.0",
@@ -15,24 +14,28 @@
     },
     "autoload": {
         "psr-4": {
-            "Jonston\\AmazonAdsApi\\": "src/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+            "Jonston\\AmazonAds\\": "src/"
+        }
     },
     "autoload-dev": {
         "psr-4": {
-            "Jonston\\AmazonAdsApi\\Tests\\": "tests/"
+            "Jonston\\AmazonAds\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Jonston\\AmazonAdsApi\\AmazonAdsServiceProvider"
-            ]
+                "Jonston\\AmazonAds\\AmazonAdsServiceProvider"
+            ],
+            "aliases": {
+                "AmazonAds": "Jonston\\AmazonAds\\Facades\\AmazonAds"
+            }
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }
